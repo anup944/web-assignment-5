@@ -10,8 +10,7 @@
 *
 ********************************************************************************/
 
-require('pg'); // explicitly require the "pg" module
-const Sequelize = require('sequelize');
+
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
