@@ -11,7 +11,7 @@ const HTTP_PORT = process.env.PORT || 8080;
 *
 * https://www.senecapolytechnic.ca/about/policies/academic-integrity-policy.html
 *
-* Name: Anup Oli | Student ID: 145433231 | Date: 01/28/2025
+* Name: Anup Oli | Student ID: 146858238 | Date: 01/28/2025
 *
 ********************************************************************************/
 
@@ -28,7 +28,7 @@ projectData.initialize()
 
 // Define routes
 app.get("/", (req, res) => {
-    res.send("Assignment 2: Anup Oli - 145433231");
+    res.send("Assignment 2: Anup Oli - 146858238");
 });
 
 // Route to fetch all projects
