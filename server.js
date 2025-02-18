@@ -254,4 +254,5 @@ projectData.Initialize()
   .catch((err) => {
     console.error("Failed to initialize project data:", err);
   });
->>>>>>> master
+>>>>
+>>> master
