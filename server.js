@@ -102,7 +102,7 @@ app.get("/solutions/projects", (req, res) => {
               id: 302,
               title: "Community Garden Initiative",
               sector: "Plantation",
-              description: "Promote local gardening and planting for a greener community."
+              description: "Promote local gardening and planting for greener community."
             }
           ]
         });
