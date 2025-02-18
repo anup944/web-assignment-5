@@ -6,7 +6,7 @@
 * 
 *  https://www.senecapolytechnic.ca/about/policies/academic-integrity-policy.html
 * 
-*  Name: Mansan Silwal Student ID: 132326232 Date: 16th Feb,2025
+*  Name: Mansan Silwal Student ID: 146858238 Date: 17th Feb,2025
 *
 ********************************************************************************/
 
@@ -17,8 +17,8 @@ const port = process.env.PORT || 3000;
 
 const projectData = require("./modules/projects");
 
-const studentName = "Mansan Silwal";
-const studentId = "132326232";
+const studentName = "Anup Oli";
+const studentId = "146858238";
 
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, "public")));
