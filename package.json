@@ -1,5 +1,5 @@
 {
-  "name": "assign2",
+  "name": "assignment3",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Mansan760/Web311.git"
+    "url": "git+https://github.com/anup944/webasgm"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Mansan760/Web311/issues"
+    "url": "https://github.com/anup944/webasgm/issues"
   },
-  "homepage": "https://github.com/Mansan760/Web311#readme",
+  "homepage": "https://github.com/anup944/webasgm#readme",
   "description": "",
   "dependencies": {
     "express": "^4.21.2"
