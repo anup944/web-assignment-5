@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Me</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+  <%- include('partials/navbar', { page: '/about' }) %>
+
+  <div class="container mx-auto px-4">
+    <div class="hero min-h-[200px] bg-base-200 my-8">
+      <div class="hero-content text-center">
+        <div class="max-w-md">
+          <h1 class="text-5xl font-bold text-primary">About Me</h1>
+          <p class="py-6 text-xl">Learn more about who I am and what I do</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-8">
+      <div class="flex justify-center items-center">
+        <img
+          src="https://www.vmcdn.ca/f/files/newmarkettoday/images/education/2020-09-26-seneca-college.jpg" alt="Seneca Polytechnic Logo"
+          alt="Profile"
+          class="rounded-full shadow-lg border-4 border-yellow-400 mx-auto mt-12 mb-12 w-60 h-60 object-cover"
+        />
+      </div>
+      <div class="flex flex-col justify-center">
+        <h2 class="text-3xl font-bold mb-4">Anup Oli</h2>
+        <p class="text-lg mb-4">
+          I am Anup, a WEB student at Seneca College. My program is CPP.
+        </p>
+        <p class="text-lg">
+          I'm passionate about building interactive, user-friendly web applications 
+          and always eager to learn new frameworks and tools.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

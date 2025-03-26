@@ -1,170 +1,187 @@
 /********************************************************************************
-*  WEB322 – Assignment 03
+*  WEB322 – Assignment 05
 * 
 *  I declare that this assignment is my own work in accordance with Seneca's
 *  Academic Integrity Policy:
 * 
 *  https://www.senecapolytechnic.ca/about/policies/academic-integrity-policy.html
 * 
-*  Name: Anup Oli Student ID: 146858238 Date: 17th Feb, 2025
+*  Name: Anup Oli Student ID: 146858238 Date:2025/03/25
 *
 ********************************************************************************/
 
 const express = require("express");
 const path = require("path");
 const app = express();
-const port = process.env.PORT || 3000;
+const HTTP_PORT = process.env.PORT || 8080;
 
-const projectData = require("./modules/projects");
+// Set up EJS as the view engine
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
-const studentName = "Anup Oli";
-const studentId = "146858238";
+// Import project module
+const projectModule = require("./modules/projects");
+const { initialize, getAllProjects, getProjectById, getProjectsBySector, addProject, getAllSectors, editProject, deleteProject } = projectModule;
 
-// Serve static files from the public directory
+// Middleware for form data
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files
 app.use(express.static(path.join(__dirname, "public")));
-app.use(express.json());
 
-// Predefined projects mapped by sector
-const hardcodedProjects = {
-  "Plastic Bags": [
-    { id: 101, title: "Reduce Single-Use Plastic Bag Project", sector: "Plastic Bags", description: "Encourage the use of reusable bags in local stores." },
-    { id: 102, title: "Plastic Bag Recycling Initiative", sector: "Plastic Bags", description: "Collect and recycle plastic bags to reduce waste." }
-  ],
-  "Carbon Gases": [
-    { id: 201, title: "Carbon Capture Program", sector: "Carbon Gases", description: "Implement technology to capture and store CO2 emissions." },
-    { id: 202, title: "Greenhouse Gas Reduction", sector: "Carbon Gases", description: "Work with industries to lower carbon footprints." }
-  ],
-  "Plantation": [
-    { id: 301, title: "Urban Tree Planting", sector: "Plantation", description: "Plant trees in urban areas to improve air quality." },
-    { id: 302, title: "Community Garden Initiative", sector: "Plantation", description: "Promote local gardening and planting for a greener community." }
-  ]
-};
+// Routes
+app.get("/", (req, res) => res.render("home", { page: "/" }));
+app.get("/about", (req, res) => res.render("about", { page: "/about" }));
 
-// Route for Home page (index)
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "home.html"));
-});
+// Solutions/Projects route
+app.get("/solutions/projects", async (req, res) => {
+  try {
+    const sector = req.query.sector;
+    const projects = sector ? await getProjectsBySector(sector) : await getAllProjects();
 
-// Route for About page
-app.get("/about", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "about.html"));
-});
-
-// Route for solutions/projects
-app.get("/solutions/projects", (req, res) => {
-  const sector = req.query.sector;
-
-  if (sector) {
-    if (hardcodedProjects[sector]) {
-      return res.json({
-        studentName,
-        studentId,
-        timestamp: new Date().toISOString(),
-        projects: hardcodedProjects[sector]
+    if (!projects || projects.length === 0) {
+      return res.status(404).render("404", { 
+        message: sector ? `No projects found for sector: ${sector}` : "No projects available.",
+        page: "/solutions/projects"
       });
     }
 
-    // If not hardcoded, fetch from projectData module
-    projectData.getProjectsBySector(sector)
-      .then((projects) => {
-        if (projects.length === 0) {
-          return res.status(404).json({
-            studentName,
-            studentId,
-            timestamp: new Date().toISOString(),
-            error: `No projects found for sector: ${sector}`
-          });
-        }
-        res.json({
-          studentName,
-          studentId,
-          timestamp: new Date().toISOString(),
-          projects
-        });
-      })
-      .catch(() => {
-        res.status(500).json({
-          studentName,
-          studentId,
-          timestamp: new Date().toISOString(),
-          error: "Internal server error"
-        });
-      });
-  } else {
-    // No sector provided, return all projects
-    projectData.getAllProjects()
-      .then((projects) => {
-        res.json({
-          studentName,
-          studentId,
-          timestamp: new Date().toISOString(),
-          projects
-        });
-      })
-      .catch(() => {
-        res.status(500).json({
-          studentName,
-          studentId,
-          timestamp: new Date().toISOString(),
-          error: "Internal server error"
-        });
-      });
+    res.render("projects", {
+      page: "/solutions/projects",
+      projects,
+      sector
+    });
+  } catch (err) {
+    console.error("Error fetching projects:", err);
+    res.status(500).render("500", { 
+      message: "An error occurred while fetching projects. Please try again later."
+    });
   }
 });
 
-// Route for individual project by ID
-app.get("/solutions/projects/:id", (req, res) => {
+// Route for individual projects
+app.get("/solutions/projects/:id", async (req, res) => {
   const projectId = parseInt(req.params.id, 10);
 
-  projectData.getProjectById(projectId)
-    .then((project) => {
-      if (!project) {
-        return res.status(404).json({
-          studentName,
-          studentId,
-          timestamp: new Date().toISOString(),
-          error: `Project with ID ${projectId} not found`
-        });
-      }
-      res.json({
-        studentName,
-        studentId,
-        timestamp: new Date().toISOString(),
-        project
-      });
-    })
-    .catch(() => {
-      res.status(500).json({
-        studentName,
-        studentId,
-        timestamp: new Date().toISOString(),
-        error: "Internal server error"
-      });
+  if (isNaN(projectId)) {
+    return res.status(400).render("404", {
+      message: "Invalid project ID. Please provide a numeric ID.",
+      page: "/solutions/projects"
     });
+  }
+
+  try {
+    const project = await getProjectById(projectId);
+
+    if (!project) {
+      return res.status(404).render("404", { 
+        message: `Project with ID ${projectId} not found.`,
+        page: "/solutions/projects"
+      });
+    }
+
+    res.render("project", { 
+      project,
+      page: "/solutions/projects"
+    });
+  } catch (err) {
+    console.error("Error fetching project by ID:", err);
+    res.status(500).render("500", { 
+      message: "An error occurred while fetching the project. Please try again later."
+    });
+  }
 });
 
-// Custom 404 error page
-app.get("*", (req, res) => {
-  res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+// Add Project routes
+app.get("/solutions/addProject", async (req, res) => {
+  try {
+    const sectors = await getAllSectors();
+    res.render("addProject", { 
+      page: "/solutions/addProject",
+      sectors 
+    });
+  } catch (err) {
+    console.error("Error fetching sectors:", err);
+    res.status(500).render("500", { 
+      message: "An error occurred while loading the form. Please try again later."
+    });
+  }
 });
 
-// POST route for handling requests at /post-request
-app.post("/post-request", (req, res) => {
-  res.json({
-    studentName,
-    studentId,
-    timestamp: new Date().toISOString(),
-    requestBody: req.body
+app.post("/solutions/addProject", async (req, res) => {
+  try {
+    await addProject(req.body);
+    res.redirect("/solutions/projects");
+  } catch (err) {
+    console.error("Error adding project:", err);
+    res.render("500", { 
+      message: `I'm sorry, but we have encountered the following error: ${err}`
+    });
+  }
+});
+
+// Edit Project routes
+app.get("/solutions/editProject/:id", async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id, 10);
+    const [project, sectors] = await Promise.all([
+      getProjectById(projectId),
+      getAllSectors()
+    ]);
+    
+    res.render("editProject", { 
+      page: "",
+      project,
+      sectors 
+    });
+  } catch (err) {
+    console.error("Error loading edit form:", err);
+    res.status(404).render("404", { 
+      message: err,
+      page: "/solutions/projects"
+    });
+  }
+});
+
+app.post("/solutions/editProject", async (req, res) => {
+  try {
+    await editProject(req.body.id, req.body);
+    res.redirect("/solutions/projects");
+  } catch (err) {
+    console.error("Error updating project:", err);
+    res.render("500", { 
+      message: `I'm sorry, but we have encountered the following error: ${err}`
+    });
+  }
+});
+
+// Delete Project route
+app.get("/solutions/deleteProject/:id", async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id, 10);
+    await deleteProject(projectId);
+    res.redirect("/solutions/projects");
+  } catch (err) {
+    console.error("Error deleting project:", err);
+    res.render("500", { 
+      message: `I'm sorry, but we have encountered the following error: ${err}`
+    });
+  }
+});
+
+// 404 Page Not Found handler
+app.use((req, res) => {
+  res.status(404).render("404", { 
+    message: "Page not found",
+    page: ""
   });
 });
 
-// Initialize project data and start the server
-projectData.Initialize()
+// Initialize database and start the server
+initialize()
   .then(() => {
-    app.listen(port, () => {
-      console.log(`Server is listening on port ${port}`);
-    });
+    app.listen(HTTP_PORT, () => console.log(`Server running on port ${HTTP_PORT}`));
   })
   .catch((err) => {
-    console.error("Failed to initialize project data:", err);
+    console.error("Error initializing database:", err);
   });
